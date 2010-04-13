@@ -1,0 +1,36 @@
+= ethbridge - jennic based Ieee802.15.4 USB Stick =
+
+ This is a Contiki-based firmware for the jnusb platform, supplying ethernet
+emulated access to an Ieee802.15.4 Network. The firmware is based on the same
+code that is used on the Atmel AVR raven usb stick.
+
+== Building ==
+
+ Adapt the Makefile with the location of your Contiki Source Tree, i.e. change
+the Contiki = ../contiki line to suit your environment. Then use
+
+ $ make TARGET=jnusb ethbridge.jnusb.hex
+
+ to get the .hex file that needs to be uploaded to your jnusb stick. You can use
+the jenprog (http://www.teco.edu/~scholl/ba-toolchain/jenprog-1.1.tar.gz)
+utility for that.
+
+== Usage ==
+
+ After programming plug the stick into your computer. A CDC Ethernet Device
+should pop up on your pc. On Linux this will just be another ethX interface that
+you can pull up (e.g. ifconfig eth1 up) and start to receive Ipv6 packets.
+
+ Per default the USB Stick is configured to start as a Coordinator and start a
+Network with the Panid 0xbeef on the most silent channel in non-beacon mode. To
+change that behaviour you need to modify the Makefile or contiki-conf.h file in
+platform/jnusb in the contiki directory:
+
+  - fixed channel operation in contiki-conf.h
+  - beacon-enabled mode in contiki-conf.h
+  - panid in contiki-conf.h
+  - to start as a normal node and join the configured panid network change the
+    Makefile to exclude the -DJENNIC_CONF_COORDINATOR and make sure its not
+    defined elsewhere
+
+Happy Networking!
