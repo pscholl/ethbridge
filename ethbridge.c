@@ -37,7 +37,9 @@
 #include "ieee802.h"
 #include "bridge_aux.c"
 #include "net/netstack.h"
-#include "net/cdc_dev.h"
+#include "cdc_dev.h"
+
+AUTOSTART_PROCESSES(&cdc_process);
 
 #define UIP_PROTO_UDPLITE 0x88
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
