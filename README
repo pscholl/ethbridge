@@ -2,7 +2,8 @@
 
  This is a Contiki-based firmware for the jnusb platform, supplying ethernet
 emulated access to an Ieee802.15.4 Network. The firmware is based on the same
-code that is used on the Atmel AVR raven usb stick.
+code that is used on the Atmel AVR raven usb stick. The hardware is available to
+the public at platform/jnusb/ in the contiki source tree.
 
 == Building ==
 
