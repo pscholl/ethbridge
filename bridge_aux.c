@@ -181,7 +181,7 @@ mac_ethernetToLowpan()
   static uip_lladdr_t destAddr;
 
   // If not IPv6 we don't do anything
-  if (ETHBUF(uip_buf)->type != HTONS(UIP_ETHTYPE_IPV6))
+  if (ETHBUF(uip_buf)->type != UIP_HTONS(UIP_ETHTYPE_IPV6))
   {
     uip_log("bridge: unknown mac type\n");
     return NULL;
@@ -239,7 +239,7 @@ void
 mac_LowpanToEthernet(void)
 {
   //Setup generic ethernet stuff
-  ETHBUF(uip_buf)->type = htons(UIP_ETHTYPE_IPV6);
+  ETHBUF(uip_buf)->type = uip_htons(UIP_ETHTYPE_IPV6);
 
   //Check for broadcast message
   if(rimeaddr_cmp(packetbuf_addr(PACKETBUF_ADDR_RECEIVER), &rimeaddr_null)) {

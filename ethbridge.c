@@ -85,16 +85,16 @@ lowpan2eth()
     UIP_IP_BUF->proto = UIP_PROTO_UDPLITE;
 
     /* change udp checksum for changed data */
-    UIP_UDP_BUF->udpchksum = ~htons( ntohs(~UIP_UDP_BUF->udpchksum)
+    UIP_UDP_BUF->udpchksum = ~uip_htons( uip_ntohs(~UIP_UDP_BUF->udpchksum)
                                    + 1 + (UIP_PROTO_UDPLITE - UIP_PROTO_UDP));
 
     /* add rssi value */
     uip_buf[UIP_LLH_LEN+uip_len] = last_rssi;
 
     /* change ip header length */
-    iplen = HTONS(*((u16_t*) UIP_IP_BUF->len));
+    iplen = UIP_HTONS(*((u16_t*) UIP_IP_BUF->len));
     iplen += 1;
-    *((u16_t*) UIP_IP_BUF->len) = HTONS(iplen);
+    *((u16_t*) UIP_IP_BUF->len) = UIP_HTONS(iplen);
 
     /* tell uip that a byte has been added */
     uip_len += 1;
