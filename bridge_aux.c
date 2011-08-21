@@ -140,9 +140,9 @@
 #include "gdb2.h"
 
 #include <stdint.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stddef.h>
 
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define ETHBUF(x)    ((struct uip_eth_hdr *)x)
@@ -169,19 +169,21 @@ static int8_t  mac_translateIcmpLinkLayer(lltype_t target);
 uint8_t prefixCounter;
 uint8_t prefixBuffer[PREFIX_BUFFER_SIZE][3];
 
+
 /**
  * \brief   Take a packet received over the ethernet link, and send it
  * out over 802.15.4
  *
  * received ethernet frame will be in uip_buf
  */
-static uip_lladdr_t*
+
+uip_lladdr_t*
 mac_ethernetToLowpan()
 {
   static uip_lladdr_t destAddr;
 
   // If not IPv6 we don't do anything
-  if (ETHBUF(uip_buf)->type != UIP_HTONS(UIP_ETHTYPE_IPV6))
+  if (ETHBUF(uip_buf)->type != UIP_ETHTYPE_IPV6)
   {
     uip_log("bridge: unknown mac type\n");
     return NULL;

@@ -34,4 +34,57 @@ platform/jnusb in the contiki directory:
     Makefile to exclude the -DJENNIC_CONF_COORDINATOR and make sure its not
     defined elsewhere
 
+= slipbridge - jennic based ieee802.15.4 uart networking =
+
+ A firmware compatible with the tapslip6 bridge found in the contiki
+distribution under tools/tapslip6.c (with minor changes, make sure to use the
+jennic contiki branch).
+
+== Building == 
+
+ Again, adapt the Makefile.slipbridge with the location of the jennic contiki
+branch. Choose a platform (this examples uses jndevkit). Then type
+
+ $ make TARGET=jndevkit -f Makefile.slipbridge slipbridge.u
+
+with the jennic jndevkit connected and in programming mode (holding SPIMISO
+while releasing RESET).
+
+== Usage ==
+
+ Make sure the firmware is running (by pressing reset after programming) and
+that the jennic module has a proper mac address set. If there is no proper mac
+address (first byte of the address must be zero!) the bridge won't function
+properly. Change into contiki/tools/. Build the tapslip6 binary if you haven't
+done so already:
+
+ $ make tapslip6
+
+and run with:
+
+ $ sudo ./tapslip6 -B 115200 -s /dev/ttyUSB0 127.0.0.1 255.0.0.0
+slip started on ``/dev/ttyUSB0''
+opened device ``/dev/tap0''
+opening: tap0ifconfig tap0 inet `hostname` up
+route add -net 127.0.0.0 netmask 255.0.0.0 dev tap0
+ifconfig tap0
+
+tap0      Link encap:Ethernet  HWaddr 76:CD:DE:1D:EF:11  
+          inet addr:127.0.0.1  Bcast:127.255.255.255  Mask:255.0.0.0
+          inet6 addr: fe80::74cd:deff:fe1d:ef11/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:500 
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+
+*** Gateway's ethernet MAC address: 00:15:8d:00:00:0b
+ifconfig tap0 down
+ifconfig tap0 hw ether 00:15:8d:00:00:0b
+ifconfig tap0 up
+
+More information on slip bridging can be found in this guide:
+http://sourceforge.net/apps/mediawiki/contiki/index.php?title=Connecting-to-ipv6
+
 Happy Networking!
+
