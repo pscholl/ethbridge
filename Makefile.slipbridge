@@ -7,5 +7,5 @@ UIP_CONF_IPV6=1
 CFLAGS+=-DJENNIC_CONF_COORDINATOR
 CFLAGS+=-DSLIP_CONF_ANSWER_MAC_REQUEST
 
-CONTIKI = ../contiki/
+CONTIKI = ../../contiki-jn51xx
 include $(CONTIKI)/Makefile.include
