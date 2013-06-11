@@ -36,12 +36,6 @@
 #include "dev/uart0.h"
 #include "dev/leds.h"
 
-void
-slip_arch_init(unsigned long ubr)
-{
-  uart0_set_input(slip_input_byte);
-  uart0_init(ubr);
-}
 
 void
 slip_arch_writeb(unsigned char c)
@@ -49,3 +43,9 @@ slip_arch_writeb(unsigned char c)
   uart0_writeb(c);
 }
 
+void
+slip_arch_init(unsigned long ubr)
+{
+  uart0_set_input(slip_input_byte);
+  uart0_init(ubr);
+}

@@ -43,28 +43,8 @@
 #include "net/netstack.h"
 
 PROCESS(slipbr_process, "Serial Line IP Bridge process");
-AUTOSTART_PROCESSES(&slipbr_process);
-
-void
-eth2lowpan()
-{
-  uip_lladdr_t *destaddr;
-
-  if (uip_len == 4 && strncmp((char*) uip_buf, "?IPA", 4))
-    return; /* ignore */
-
-  /* TODO: where on the read is this header added?! */
-  memmove(uip_buf, &uip_buf[UIP_LLH_LEN], uip_len);
-  destaddr = mac_ethernetToLowpan();
-
-  if(destaddr!=NULL)
-    sicslowpan_output(destaddr);
-  else
-  {
-    leds_toggle(LEDS_ALL);
-    uip_log("bridge: translation failed\n");
-  }
-}
+PROCESS(test_process, "Test");
+AUTOSTART_PROCESSES(&slipbr_process, &test_process);
 
 void
 lowpan2eth()
@@ -73,25 +53,76 @@ lowpan2eth()
   slip_send();
 }
 
+#define ETHBUF(x)    ((struct uip_eth_hdr *)x)
+
+void
+eth2lowpan()
+{
+  uip_lladdr_t *destaddr;
+  size_t i=0;
+
+  destaddr = mac_ethernetToLowpan();
+
+  if(destaddr!=NULL)
+    sicslowpan_output(destaddr);
+  else {
+    uip_log("bridge: translation failed\n");
+
+    printf("\n\n");
+    printf("len: %d\n", uip_len);
+    printf("ethbuf: %d\n", ETHBUF(uip_buf)->type);
+    for (i=0; i<30; i++)
+      printf("0x%x ", uip_buf[i]);
+    printf("\n");
+  }
+}
+
 PROCESS_THREAD(slipbr_process, ev, data)
 {
+  int i;
+
   PROCESS_BEGIN();
   uip_log("bridge: starting\n");
 
-  process_exit(&tcpip_process);
+  /* DO NOT DELETE THESE LINES, thery are needed for SLIP operation, i.e.
+   * letting the atmega know the mac address */
+  printf("mac: ");
+  for (i=0; i<sizeof(uip_lladdr); i++)
+    uart0_writeb(uip_lladdr.addr[i]);
 
   /* rewire wpan interface to lowpan2eth() and other interface to eth2lowpan(),
    * this is ulgy I know */
+  process_exit(&tcpip_process);
   sicslowpan_tcpip_input = lowpan2eth;
   slip_set_input_callback(eth2lowpan);
-
-  /* now start the slip process */
-  slip_arch_init(115200);
+  slip_arch_init(1000000);
   process_start(&slip_process, NULL);
 
   /* wait until killed then rewire network layer to tcpip layer */
   PROCESS_YIELD_UNTIL(ev==PROCESS_EVENT_EXIT);
   uip_log("bridge: exiting\n");
+
+  process_start(&tcpip_process, NULL);
+  sicslowpan_tcpip_input = tcpip_input;
+
+  PROCESS_END();
+}
+
+//lässt leds blinken wenn über Port 10000 udp Nachricht kommt -> nur wenn rndis aus
+PROCESS_THREAD(test_process, ev, data)
+{
+  static struct uip_udp_conn *udp;
+
+  PROCESS_BEGIN();
+
+  udp = udp_new(NULL, UIP_HTONS(10000), NULL);
+  uip_udp_bind(udp, UIP_HTONS(10000));
+
+  while(1)
+  {
+    PROCESS_YIELD_UNTIL(ev == tcpip_event);
+    leds_toggle(LEDS_ALL);
+  }
 
   PROCESS_END();
 }
