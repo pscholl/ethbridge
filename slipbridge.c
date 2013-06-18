@@ -61,6 +61,9 @@ eth2lowpan()
   uip_lladdr_t *destaddr;
   size_t i=0;
 
+
+  /* TODO: where on the read is this header added?! */
+  memmove(uip_buf, &uip_buf[UIP_LLH_LEN], uip_len);
   destaddr = mac_ethernetToLowpan();
 
   if(destaddr!=NULL)
